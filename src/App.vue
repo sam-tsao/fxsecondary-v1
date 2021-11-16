@@ -1,7 +1,8 @@
 <template>
   <div id="app">
     <h1>FXSECONDARY</h1>
-    <div>Makeshift list showing latest 1000 offers on fxhash secondary market.</div>
+    <div>Makeshift list showing latest 1000 offers on fxhash secondary market. 
+    Please let the site load a little as it fetches data from IPFS.</div>
     <div>Made by <a href="https://twitter.com/sam___tsao" target="_blank">Sam Tsao</a>.</div>
     <table>
       <tr>
