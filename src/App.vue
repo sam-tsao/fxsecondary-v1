@@ -13,7 +13,7 @@
         <td><h3>Timestamp </h3></td>
       </tr>
       <tr v-for="(offer, i) in offers" :key="i">
-        <td>{{offer.name}}</td>
+        <td>{{names[i]}}</td>
         <td>{{offer.creatorAlias || shortenAddress(offer.creatorAddress) }}</td>
         <td><a
             :href="'https://www.fxhash.xyz/objkt/' + offer.objktId"
@@ -36,7 +36,9 @@ export default {
     offers: [],
     tokenContract: "KT1KEa8z6vWXDJrVqtMrAeDVzsvxat3kHaCE",
     bcd: "https://api.better-call.dev/v1/",
-    tzkt: "https://api.tzkt.io/v1/"
+    tzkt: "https://api.tzkt.io/v1/",
+    names: [],
+    CIDs: [],
   }),
   mounted(){
     this.getOfferData()
@@ -58,12 +60,25 @@ export default {
         offer.creatorAddress = d.parameter.value.creator
         offer.createAlias = null
         offer.price = d.parameter.value.price / Math.pow(10, 6)
-        offer.name = "loading..."
+        this.names.push("loading...")
+        this.CIDs.push(-1)
         offer.timestamp = d.timestamp
-        offer.CID = await this.getCID(offer.objktId)
-        offer.name = await this.getName(offer.CID)
+        this.assignCID(i, offer.objktId)
         offer.creatorAlias = await this.getAlias(offer.creatorAddress)
         this.offers.push(offer)
+      }
+    },
+    assignName: async function(index, cid){
+      //console.log(cid)
+      this.names[index] = await this.getName(cid)
+    },
+    assignCID: async function(index, id){
+      this.CIDs[index] = await this.getCID(id)
+      this.assignName(index, this.CIDs[index])
+    },
+    getCIDs: async function(){
+      for(let i = 0; i < this.offers.length; i++){
+        this.CIDs[i] = await this.getCID(this.offers[i].objktId)
       }
     },
     getCID: async function(id){
@@ -72,6 +87,11 @@ export default {
         let data = await response.json()
         let CID = data[0].token_info[Object.keys(data[0].token_info)[0]].substring(7);
         return CID
+    },
+    getNames: async function(){
+      for(let i = 0; i < this.offers.length; i++){
+        this.names[i] = await this.getName(this.CIDs[i])
+      }
     },
     getName: async function(CID){
         const ipfslink = "https://gateway.ipfs.io/ipfs/" + CID
